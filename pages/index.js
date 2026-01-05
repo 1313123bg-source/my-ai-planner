@@ -5,7 +5,7 @@ export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Зареждане на задачите от localStorage
+  // Зареждане на задачите
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedTasks = localStorage.getItem("tasks");
@@ -15,7 +15,7 @@ export default function Home() {
     }
   }, []);
 
-  // Запазване на задачите при всяка промяна
+  // Запазване на задачите
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -23,14 +23,14 @@ export default function Home() {
   }, [tasks]);
 
   function addTask() {
-  function deleteTask(index) {
-  const newTasks = tasks.filter((_, i) => i !== index);
-  setTasks(newTasks);
-}
-
     if (task.trim() === "") return;
     setTasks([...tasks, task]);
     setTask("");
+  }
+
+  function deleteTask(index) {
+    const newTasks = tasks.filter((_, i) => i !== index);
+    setTasks(newTasks);
   }
 
   async function sortWithAI() {
@@ -69,7 +69,10 @@ export default function Home() {
         style={{ padding: 8, width: "100%", marginBottom: 8 }}
       />
 
-      <button onClick={addTask} style={{ padding: 8, width: "100%" }}>
+      <button
+        onClick={addTask}
+        style={{ padding: 8, width: "100%", marginBottom: 8 }}
+      >
         Добави задача
       </button>
 
@@ -79,7 +82,6 @@ export default function Home() {
         style={{
           padding: 8,
           width: "100%",
-          marginTop: 10,
           backgroundColor: "#000",
           color: "#fff",
         }}
@@ -87,10 +89,34 @@ export default function Home() {
         {loading ? "AI мисли..." : "Подреди с AI 🤖"}
       </button>
 
-      <ul style={{ marginTop: 20 }}>
+      <ul style={{ marginTop: 20, padding: 0 }}>
         {tasks.map((t, i) => (
-          <li key={i} style={{ marginBottom: 6 }}>
-            {t}
+          <li
+            key={i}
+            style={{
+              listStyle: "none",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 8,
+              padding: 6,
+              border: "1px solid #ddd",
+              borderRadius: 6,
+            }}
+          >
+            <span>{t}</span>
+            <button
+              onClick={() => deleteTask(i)}
+              style={{
+                background: "red",
+                color: "white",
+                border: "none",
+                borderRadius: 4,
+                padding: "4px 8px",
+              }}
+            >
+              ❌
+            </button>
           </li>
         ))}
       </ul>
