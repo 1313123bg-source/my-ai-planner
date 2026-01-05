@@ -1,14 +1,25 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 
 export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
-
+  useEffect(() => {
+  const savedTasks = localStorage.getItem("tasks");
+  if (savedTasks) {
+    setTasks(JSON.parse(savedTasks));
+  }
+}, []);
   function addTask() {
-    if (task === "") return;
-    setTasks([...tasks, task]);
-    setTask("");
+  if (task === "") return;
+
+  const newTasks = [...tasks, task];
+  setTasks(newTasks);
+  localStorage.setItem("tasks", JSON.stringify(newTasks));
+  setTask("");
+  }
+  
   }
 
   return (
