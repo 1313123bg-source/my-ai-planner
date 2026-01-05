@@ -23,6 +23,11 @@ export default function Home() {
   }, [tasks]);
 
   function addTask() {
+  function deleteTask(index) {
+  const newTasks = tasks.filter((_, i) => i !== index);
+  setTasks(newTasks);
+}
+
     if (task.trim() === "") return;
     setTasks([...tasks, task]);
     setTask("");
