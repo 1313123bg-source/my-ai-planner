@@ -1,33 +1,30 @@
-
 import { useState, useEffect } from "react";
-
 
 export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
-  useEffect(() => {
-  const savedTasks = localStorage.getItem("tasks");
-  if (savedTasks) {
-    setTasks(JSON.parse(savedTasks));
-    useEffect(() => {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-}, [tasks]);
-    
-  }
-}, []);
-  function addTask() {
-  if (task === "") return;
-  setTasks([...tasks, task]);
-  setTask("");
-  }
-  
 
-  const newTasks = [...tasks, task];
-  setTasks(newTasks);
-  localStorage.setItem("tasks", JSON.stringify(newTasks));
-  setTask("");
-  }
-  
+  // Зареждаме задачите при отваряне
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedTasks = localStorage.getItem("tasks");
+      if (savedTasks) {
+        setTasks(JSON.parse(savedTasks));
+      }
+    }
+  }, []);
+
+  // Запазваме задачите при всяка промяна
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  }, [tasks]);
+
+  function addTask() {
+    if (task.trim() === "") return;
+    setTasks([...tasks, task]);
+    setTask("");
   }
 
   return (
