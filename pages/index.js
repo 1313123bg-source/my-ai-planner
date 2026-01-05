@@ -5,12 +5,16 @@ export default function Home() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Зареждане на задачите
+  // Зареждане на задачите (работи и за стари данни)
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const savedTasks = localStorage.getItem("tasks");
-      if (savedTasks) {
-        setTasks(JSON.parse(savedTasks));
+      try {
+        const savedTasks = localStorage.getItem("tasks");
+        if (savedTasks) {
+          setTasks(JSON.parse(savedTasks));
+        }
+      } catch {
+        setTasks([]);
       }
     }
   }, []);
@@ -24,37 +28,37 @@ export default function Home() {
 
   function addTask() {
     if (task.trim() === "") return;
-    setTasks([...tasks, task]);
+    setTasks([...tasks, task.trim()]);
     setTask("");
   }
 
   function deleteTask(index) {
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks);
+    setTasks(tasks.filter((_, i) => i !== index));
+  }
+
+  function clearAllTasks() {
+    setTasks([]);
+    localStorage.removeItem("tasks");
   }
 
   async function sortWithAI() {
     if (tasks.length === 0) return;
 
     setLoading(true);
-
     try {
       const response = await fetch("/api/ai", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tasks }),
       });
 
       const data = await response.json();
-      if (data.tasks) {
+      if (Array.isArray(data.tasks)) {
         setTasks(data.tasks);
       }
-    } catch (error) {
-      alert("Грешка при AI подреждане");
+    } catch {
+      alert("AI подреждането не успя");
     }
-
     setLoading(false);
   }
 
@@ -66,12 +70,12 @@ export default function Home() {
         placeholder="Напиши задача..."
         value={task}
         onChange={(e) => setTask(e.target.value)}
-        style={{ padding: 8, width: "100%", marginBottom: 8 }}
+        style={{ padding: 10, width: "100%", marginBottom: 8 }}
       />
 
       <button
         onClick={addTask}
-        style={{ padding: 8, width: "100%", marginBottom: 8 }}
+        style={{ padding: 10, width: "100%", marginBottom: 8 }}
       >
         Добави задача
       </button>
@@ -80,16 +84,29 @@ export default function Home() {
         onClick={sortWithAI}
         disabled={loading}
         style={{
-          padding: 8,
+          padding: 10,
           width: "100%",
           backgroundColor: "#000",
           color: "#fff",
+          marginBottom: 8,
         }}
       >
         {loading ? "AI мисли..." : "Подреди с AI 🤖"}
       </button>
 
-      <ul style={{ marginTop: 20, padding: 0 }}>
+      <button
+        onClick={clearAllTasks}
+        style={{
+          padding: 10,
+          width: "100%",
+          backgroundColor: "#ccc",
+          marginBottom: 20,
+        }}
+      >
+        Изчисти всички задачи 🧹
+      </button>
+
+      <ul style={{ padding: 0 }}>
         {tasks.map((t, i) => (
           <li
             key={i}
@@ -99,7 +116,7 @@ export default function Home() {
               justifyContent: "space-between",
               alignItems: "center",
               marginBottom: 8,
-              padding: 6,
+              padding: 8,
               border: "1px solid #ddd",
               borderRadius: 6,
             }}
