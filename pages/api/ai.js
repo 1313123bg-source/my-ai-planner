@@ -5,11 +5,11 @@ async function sortWithAI() {
 
   let sortedTasks = [];
 
-  // Ако задачи < 5 → разбъркваме локално
   if (tasks.length < 5) {
+    // Малък списък → локално разбъркване
     sortedTasks = [...tasks].sort(() => Math.random() - 0.5);
   } else {
-    // Иначе правим реален AI call (за повече задачи)
+    // По-голям списък → опит AI
     try {
       const response = await fetch("/api/ai", {
         method: "POST",
@@ -17,7 +17,7 @@ async function sortWithAI() {
         body: JSON.stringify({ tasks }),
       });
       const data = await response.json();
-      sortedTasks = data.tasks || tasks;
+      sortedTasks = data.tasks && data.tasks.length ? data.tasks : [...tasks].sort(() => Math.random() - 0.5);
     } catch {
       sortedTasks = [...tasks].sort(() => Math.random() - 0.5);
     }
