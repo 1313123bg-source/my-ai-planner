@@ -5,8 +5,8 @@ async function sortWithAI() {
 
   let sortedTasks = [];
 
+  // Малък списък → локално разбъркване
   if (tasks.length < 5) {
-    // Малък списък → локално разбъркване
     sortedTasks = [...tasks].sort(() => Math.random() - 0.5);
   } else {
     // По-голям списък → опит AI
@@ -17,7 +17,14 @@ async function sortWithAI() {
         body: JSON.stringify({ tasks }),
       });
       const data = await response.json();
-      sortedTasks = data.tasks && data.tasks.length ? data.tasks : [...tasks].sort(() => Math.random() - 0.5);
+
+      // Ако AI върне валиден масив → използваме
+      if (Array.isArray(data.tasks) && data.tasks.length > 0) {
+        sortedTasks = data.tasks;
+      } else {
+        // fallback → локално разбъркване
+        sortedTasks = [...tasks].sort(() => Math.random() - 0.5);
+      }
     } catch {
       sortedTasks = [...tasks].sort(() => Math.random() - 0.5);
     }
