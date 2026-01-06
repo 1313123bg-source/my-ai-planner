@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   // Зареждане
   useEffect(() => {
@@ -35,42 +34,41 @@ export default function Home() {
     localStorage.removeItem("tasks");
   }
 
-  // 🔥 ЖЕЛЯЗНО ПОДРЕЖДАНЕ
-  async function sortWithAI() {
+  // 🧠 SMART ПОДРЕЖДАНЕ (МНОГО БЪРЗО)
+  function smartSort() {
     if (tasks.length < 2) return;
 
-    setLoading(true);
+    const priorityWords = [
+      "работа",
+      "сметки",
+      "плащане",
+      "среща",
+      "deadline",
+      "проект",
+    ];
 
-    // 1️⃣ ВИНАГИ първо локално размесване (моментално)
-    let shuffled = [...tasks].sort(() => Math.random() - 0.5);
-    setTasks(shuffled);
+    const sorted = [...tasks].sort((a, b) => {
+      const aScore = priorityWords.some((w) =>
+        a.toLowerCase().includes(w)
+      )
+        ? 1
+        : 0;
+      const bScore = priorityWords.some((w) =>
+        b.toLowerCase().includes(w)
+      )
+        ? 1
+        : 0;
 
-    // 2️⃣ Опит AI (НЕ блокира UI)
-    try {
-      const controller = new AbortController();
-      setTimeout(() => controller.abort(), 2000); // макс 2 сек
+      if (aScore !== bScore) return bScore - aScore;
+      return b.length - a.length;
+    });
 
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tasks }),
-        signal: controller.signal,
-      });
-
-      const data = await res.json();
-      if (Array.isArray(data.tasks) && data.tasks.length > 0) {
-        setTasks(data.tasks);
-      }
-    } catch {
-      // НИЩО — локалното вече е направено
-    }
-
-    setLoading(false);
+    setTasks(sorted);
   }
 
   return (
     <div style={{ padding: 20, maxWidth: 500, margin: "0 auto" }}>
-      <h1>Моят AI Planner 🤖</h1>
+      <h1>Моят Smart Planner 🧠</h1>
 
       <input
         placeholder="Напиши задача..."
@@ -87,7 +85,7 @@ export default function Home() {
       </button>
 
       <button
-        onClick={sortWithAI}
+        onClick={smartSort}
         style={{
           padding: 10,
           width: "100%",
@@ -96,7 +94,7 @@ export default function Home() {
           marginBottom: 8,
         }}
       >
-        {loading ? "Подреждам..." : "Подреди 🤖"}
+        Подреди умно 🧠
       </button>
 
       <button
@@ -141,7 +139,3 @@ export default function Home() {
             </button>
           </li>
         ))}
-      </ul>
-    </div>
-  );
-}
