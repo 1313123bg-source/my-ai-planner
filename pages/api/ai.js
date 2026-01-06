@@ -17,46 +17,40 @@ export default async function handler(req, res) {
     }
 
     const prompt = `
-Ти си асистент за продуктивност.
+Подреди следните задачи по важност (най-важните първи).  
+Върни ги като списък, по една на ред.  
+Не добавяй обяснения, не използвай JSON:
 
-Подреди задачите по ВАЖНОСТ и СПЕШНОСТ.
-Ако не си сигурен, ПРИНУДИТЕЛНО промени реда им.
-НЕ запазвай оригиналния ред.
-
-Върни САМО валиден JSON масив от текстове.
-Без обяснения. Без markdown.
-
-Задачи:
 ${tasks.map((t, i) => `${i + 1}. ${t}`).join("\n")}
 `;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.8,
+    const completion = await openai.responses.create({
+      model: "gpt-3.5-turbo",
+      input: prompt,
+      temperature: 0.7,
+      max_output_tokens: 500,
     });
 
-    const text = completion.choices[0].message.content;
+    // Текст от AI
+    const text = completion.output_text || "";
 
-    let sortedTasks;
-    try {
-      sortedTasks = JSON.parse(text);
-    } catch {
-      // ако AI не върне JSON → разбъркване като fallback
-      sortedTasks = [...tasks].sort(() => Math.random() - 0.5);
-    }
+    // Парсваме ред по ред
+    let sortedTasks = text
+      .split("\n")
+      .map((line) => line.replace(/^\d+\.\s*/, "").trim())
+      .filter((line) => line.length > 0);
 
-    // ако AI е върнал същия ред → принудително размесване
+    // Ако редът е същият → fallback
     const sameOrder =
       sortedTasks.length === tasks.length &&
       sortedTasks.every((t, i) => t === tasks[i]);
-
     if (sameOrder) {
       sortedTasks = [...tasks].sort(() => Math.random() - 0.5);
     }
 
-    return res.status(200).json({ tasks: sortedTasks });
+    res.status(200).json({ tasks: sortedTasks });
   } catch (error) {
+    console.log("AI Error:", error);
     return res.status(500).json({ error: "AI failed" });
   }
 }
