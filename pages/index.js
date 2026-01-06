@@ -3,31 +3,22 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  // Зареждане на задачите (работи и за стари данни)
+  // Зареждане от localStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const savedTasks = localStorage.getItem("tasks");
-        if (savedTasks) {
-          setTasks(JSON.parse(savedTasks));
-        }
-      } catch {
-        setTasks([]);
-      }
+    const saved = localStorage.getItem("tasks");
+    if (saved) {
+      setTasks(JSON.parse(saved));
     }
   }, []);
 
-  // Запазване на задачите
+  // Запазване в localStorage
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    }
+    localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
   function addTask() {
-    if (task.trim() === "") return;
+    if (!task.trim()) return;
     setTasks([...tasks, task.trim()]);
     setTask("");
   }
@@ -36,40 +27,47 @@ export default function Home() {
     setTasks(tasks.filter((_, i) => i !== index));
   }
 
-  function clearAllTasks() {
+  function clearAll() {
     setTasks([]);
     localStorage.removeItem("tasks");
   }
 
-  async function sortWithAI() {
-    if (tasks.length === 0) return;
+  // 🧠 УМНО ПОДРЕЖДАНЕ (БЕЗ AI)
+  function smartSort() {
+    if (tasks.length < 2) return;
 
-    setLoading(true);
-    try {
-      const response = await fetch("/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tasks }),
-      });
+    const priorityWords = [
+      "работа",
+      "проект",
+      "сметки",
+      "плащане",
+      "фитнес",
+      "учене",
+    ];
 
-      const data = await response.json();
-      if (Array.isArray(data.tasks)) {
-        setTasks(data.tasks);
-      }
-    } catch {
-      alert("AI подреждането не успя");
-    }
-    setLoading(false);
+    const sorted = [...tasks].sort((a, b) => {
+      const aPriority = priorityWords.some(w =>
+        a.toLowerCase().includes(w)
+      );
+      const bPriority = priorityWords.some(w =>
+        b.toLowerCase().includes(w)
+      );
+
+      if (aPriority !== bPriority) return bPriority - aPriority;
+      return b.length - a.length;
+    });
+
+    setTasks(sorted);
   }
 
   return (
     <div style={{ padding: 20, maxWidth: 500, margin: "0 auto" }}>
-      <h1>Моят AI Planner 🤖</h1>
+      <h1>Моят Planner 🧠</h1>
 
       <input
-        placeholder="Напиши задача..."
         value={task}
         onChange={(e) => setTask(e.target.value)}
+        placeholder="Напиши задача..."
         style={{ padding: 10, width: "100%", marginBottom: 8 }}
       />
 
@@ -81,29 +79,28 @@ export default function Home() {
       </button>
 
       <button
-        onClick={sortWithAI}
-        disabled={loading}
+        onClick={smartSort}
         style={{
           padding: 10,
           width: "100%",
-          backgroundColor: "#000",
-          color: "#fff",
+          background: "black",
+          color: "white",
           marginBottom: 8,
         }}
       >
-        {loading ? "AI мисли..." : "Подреди с AI 🤖"}
+        Умно подрежда 🧠
       </button>
 
       <button
-        onClick={clearAllTasks}
+        onClick={clearAll}
         style={{
           padding: 10,
           width: "100%",
-          backgroundColor: "#ccc",
-          marginBottom: 20,
+          background: "#ccc",
+          marginBottom: 16,
         }}
       >
-        Изчисти всички задачи 🧹
+        Изчисти всички 🧹
       </button>
 
       <ul style={{ padding: 0 }}>
@@ -115,28 +112,5 @@ export default function Home() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: 8,
               padding: 8,
-              border: "1px solid #ddd",
-              borderRadius: 6,
-            }}
-          >
-            <span>{t}</span>
-            <button
-              onClick={() => deleteTask(i)}
-              style={{
-                background: "red",
-                color: "white",
-                border: "none",
-                borderRadius: 4,
-                padding: "4px 8px",
-              }}
-            >
-              ❌
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+              marginBo
