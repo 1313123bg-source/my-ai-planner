@@ -4,15 +4,11 @@ export default function Home() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
 
-  // Зареждане от localStorage
   useEffect(() => {
     const saved = localStorage.getItem("tasks");
-    if (saved) {
-      setTasks(JSON.parse(saved));
-    }
+    if (saved) setTasks(JSON.parse(saved));
   }, []);
 
-  // Запазване в localStorage
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
@@ -32,19 +28,10 @@ export default function Home() {
     localStorage.removeItem("tasks");
   }
 
-  // Умно подреждане без AI
   function smartSort() {
     if (tasks.length < 2) return;
 
-    const priorityWords = [
-      "работа",
-      "проект",
-      "сметки",
-      "плащане",
-      "фитнес",
-      "учене",
-    ];
-
+    const priorityWords = ["работа", "проект", "сметки", "плащане"];
     const sorted = [...tasks].sort((a, b) => {
       const aPriority = priorityWords.some((w) =>
         a.toLowerCase().includes(w)
@@ -52,7 +39,6 @@ export default function Home() {
       const bPriority = priorityWords.some((w) =>
         b.toLowerCase().includes(w)
       );
-
       if (aPriority !== bPriority) return bPriority - aPriority;
       return b.length - a.length;
     });
@@ -61,19 +47,39 @@ export default function Home() {
   }
 
   return (
-    <div style={{ padding: 20, maxWidth: 500, margin: "0 auto" }}>
-      <h1>Моят Planner 🧠</h1>
+    <div style={{ padding: 20, maxWidth: 500, margin: "0 auto", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ textAlign: "center", marginBottom: 20, color: "#111" }}>
+        Моят Planner 🧠
+      </h1>
 
       <input
         value={task}
         onChange={(e) => setTask(e.target.value)}
         placeholder="Напиши задача..."
-        style={{ padding: 10, width: "100%", marginBottom: 8 }}
+        style={{
+          padding: 12,
+          width: "100%",
+          marginBottom: 12,
+          borderRadius: 8,
+          border: "1px solid #ccc",
+          fontSize: 16,
+        }}
       />
 
       <button
         onClick={addTask}
-        style={{ padding: 10, width: "100%", marginBottom: 8 }}
+        style={{
+          width: "100%",
+          padding: 12,
+          marginBottom: 12,
+          borderRadius: 8,
+          border: "none",
+          fontWeight: "bold",
+          fontSize: 16,
+          color: "#fff",
+          background: "linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)",
+          cursor: "pointer",
+        }}
       >
         Добави задача
       </button>
@@ -81,11 +87,16 @@ export default function Home() {
       <button
         onClick={smartSort}
         style={{
-          padding: 10,
           width: "100%",
-          background: "black",
-          color: "white",
-          marginBottom: 8,
+          padding: 12,
+          marginBottom: 12,
+          borderRadius: 8,
+          border: "none",
+          fontWeight: "bold",
+          fontSize: 16,
+          color: "#fff",
+          background: "linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)",
+          cursor: "pointer",
         }}
       >
         Умно подрежда 🧠
@@ -94,10 +105,16 @@ export default function Home() {
       <button
         onClick={clearAll}
         style={{
-          padding: 10,
           width: "100%",
-          background: "#ccc",
-          marginBottom: 16,
+          padding: 12,
+          marginBottom: 20,
+          borderRadius: 8,
+          border: "none",
+          fontWeight: "bold",
+          fontSize: 16,
+          color: "#fff",
+          background: "linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%)",
+          cursor: "pointer",
         }}
       >
         Изчисти всички 🧹
@@ -112,21 +129,24 @@ export default function Home() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: 8,
-              marginBottom: 8,
-              border: "1px solid #ddd",
-              borderRadius: 6,
+              padding: 12,
+              marginBottom: 12,
+              borderRadius: 12,
+              background: "#f7f7f7",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+              fontSize: 16,
             }}
           >
             <span>{t}</span>
             <button
               onClick={() => deleteTask(i)}
               style={{
-                background: "red",
-                color: "white",
+                background: "#ff4b2b",
+                color: "#fff",
                 border: "none",
-                padding: "4px 8px",
-                borderRadius: 4,
+                borderRadius: 6,
+                padding: "6px 10px",
+                cursor: "pointer",
               }}
             >
               ❌
