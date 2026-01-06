@@ -32,7 +32,7 @@ export default function Home() {
     localStorage.removeItem("tasks");
   }
 
-  // 🧠 УМНО ПОДРЕЖДАНЕ (БЕЗ AI)
+  // Умно подреждане без AI
   function smartSort() {
     if (tasks.length < 2) return;
 
@@ -46,10 +46,10 @@ export default function Home() {
     ];
 
     const sorted = [...tasks].sort((a, b) => {
-      const aPriority = priorityWords.some(w =>
+      const aPriority = priorityWords.some((w) =>
         a.toLowerCase().includes(w)
       );
-      const bPriority = priorityWords.some(w =>
+      const bPriority = priorityWords.some((w) =>
         b.toLowerCase().includes(w)
       );
 
@@ -113,4 +113,27 @@ export default function Home() {
               justifyContent: "space-between",
               alignItems: "center",
               padding: 8,
-              marginBo
+              marginBottom: 8,
+              border: "1px solid #ddd",
+              borderRadius: 6,
+            }}
+          >
+            <span>{t}</span>
+            <button
+              onClick={() => deleteTask(i)}
+              style={{
+                background: "red",
+                color: "white",
+                border: "none",
+                padding: "4px 8px",
+                borderRadius: 4,
+              }}
+            >
+              ❌
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
